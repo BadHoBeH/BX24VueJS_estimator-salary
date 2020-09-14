@@ -1,18 +1,18 @@
 <template>
   <div style="position: relative" id="main" ref="main">
+    <menuz/>
+    <router-view/>
     <resize-observer @notify="updateViewSize" />
-    <a-button @click="updateViewSize" type="link" icon="arrows-alt"/>
-    <report/>
     <div :style="{height:razmer+'px'}"></div>
   </div>
 </template>
 <script>
 
-import report from '../src/components/REPORTS/Index'
+import menuz from '../src/components/menu/index'
 import Bitrix24 from "bitrix24-vue";
 
 export default {
-  components: {report},
+  components: { menuz },
   data() {
     return {
       a: 100,
