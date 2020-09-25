@@ -1,7 +1,7 @@
 <template>
-  <a-menu v-model="current" mode="horizontal">
+  <a-menu mode="horizontal">
     <a-menu-item v-for="i in list" :key="i.key">
-      <router-link :to="i.routeName">{{ i.title }}</router-link>
+      <router-link :to="{name: i.name}" tag="li" class="ant-menu-item" active-class="ant-menu-item ant-menu-item-active">{{ i.title }}</router-link>
     </a-menu-item>
   </a-menu>
 </template>
@@ -11,18 +11,21 @@ export default {
   data(){
     return {
       list: [
-        {
-          key: '1',
-          title: 'Конверсия',
-          routeName: 'conversion',
-        },{
+       {
           key: '2',
-          title: 'ГСМ',
-          routeName: 'routepay',
+          title: 'Конверсия',
+          path: 'conversion',
+          name: 'conversion',
         },{
           key: '3',
+          title: 'ГСМ',
+          path: 'gsm',
+          name: 'routepay',
+        },{
+          key: '4',
           title: 'Маршруты',
-          routeName: 'route',
+          path: 'route',
+          name: 'route',
         },
       ],
     }

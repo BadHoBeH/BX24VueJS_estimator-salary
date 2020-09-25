@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as crm from './modules/crm'
+import * as deal from './modules/deal'
+import * as lead from './modules/lead'
+import * as user from './modules/user'
 
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     modules: {
-        crm
+        deal,lead,user
     }
 })
 

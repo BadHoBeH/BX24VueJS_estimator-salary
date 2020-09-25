@@ -8,10 +8,12 @@
 </template>
 <script>
 
+import {mapActions} from 'vuex'
 import menuz from '../src/components/menu/index'
 import Bitrix24 from "bitrix24-vue";
 
 export default {
+
   components: { menuz },
   data() {
     return {
@@ -26,20 +28,32 @@ export default {
   },
   methods: {
 
+    ...mapActions({
+      getUser: 'user/getSelect',
+    }),
+
+
     async updateViewSize({ width, height })  {
       const BX24 = await Bitrix24.init()
       if (!BX24) return
       console.log(width, height)
       if(height % 3) this.razmer++;
       BX24.fitWindow()
+    },
 
+
+    getAllUsers(){
+      this.getUser({
+        select: ['ID', 'NAME', 'UF_DEPARTMENT', 'WORK_POSITION'],
+        key:'ID',
+      })
     },
 
   },
 
-  watch: {
-
-  },
+  mounted() {
+    this.getAllUsers();
+  }
 
 };
 </script>
