@@ -201,7 +201,7 @@ export default {
           '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss')},
         select: ['ID','TITLE','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
       })
-      await this.getDealData({
+     /* await this.getDealData({
         filter: {
           'UF_CRM_1572957239': "1",
           '>=UF_CRM_1591089625':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
@@ -209,7 +209,7 @@ export default {
           '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss')
         },
         select: ['ID','TITLE','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
-      })
+      })*/
     },
 
   }

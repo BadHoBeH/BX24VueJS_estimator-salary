@@ -1,6 +1,8 @@
 import Vue from 'vue'
 export const namespaced = true;
-import axios from 'axios'
+
+import Bitrix from '@2bad/bitrix'
+const bitrix = Bitrix('https://crm.sknebo.ru/rest/4/gejvakwi1ftwa6i0')
 
 
 export const state = {
@@ -56,15 +58,13 @@ export const actions = {
         if (!query) return false;
         commit('SET_ALL_LOADING', state.all.loading+1);
         try  {
-            console.log('dfdf', query)
-            const resp = await axios.get('https://crm.sknebo.ru/rest/4/gejvakwi1ftwa6i0/crm.deal.list.json', {params:{
-
-                }})
-            console.log(resp)
+            const { result } = await bitrix.deals.list(query)
+                commit('PUSHK_ALL_DATA',{array:result, key:'ID'})
+                console.log(result)
         } catch (e){
             commit('SET_ALL_STATUS', 'error')
             commit('SET_ALL_ERROR', e.message)
-            console.log('Error'. e.message)
+            console.log('Error', e.message)
         }
     },
 

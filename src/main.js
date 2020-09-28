@@ -6,8 +6,8 @@ import router from './router'
 import store from './store'
 import moment from "moment";
 
-import Bitrix24 from 'bitrix24-vue'
-import Bitrix from '@2bad/bitrix'
+//import Bitrix24 from 'bitrix24-vue'
+//import Bitrix from '@2bad/bitrix'
 import VueResize from 'vue-resize'
 import excel from 'vue-excel-export'
 import VueMasonry from 'vue-masonry-css'
@@ -23,10 +23,10 @@ import 'ant-design-vue/dist/antd.css';
 
 Vue.use(excel)
 Vue.use(Antd);
-Vue.use(Bitrix24)
+//Vue.use(Bitrix24)
 Vue.use(VueResize)
 Vue.use(VueMasonry)
-Vue.use(Bitrix)
+//Vue.use(Bitrix)
 Vue.use(moment)
 
 
