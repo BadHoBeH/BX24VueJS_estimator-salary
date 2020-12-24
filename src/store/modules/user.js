@@ -41,8 +41,8 @@ export const getters = {
 export const actions = {
 
 
-    async getSelect({state,commit}, find){
-        console.log('getUserSync data: ',find)
+    async getSync({state,commit}, find){
+        console.log('getSync data: ',find)
         if (!find) return false;
         commit('SET_ALL_LOADING', state.all.loading+1);
         try  {

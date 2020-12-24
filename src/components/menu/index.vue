@@ -14,7 +14,7 @@ export default {
        {
           key: '2',
           title: 'Конверсия',
-          path: 'conversion',
+          path: '',
           name: 'conversion',
         },{
           key: '3',
@@ -29,7 +29,7 @@ export default {
         },
       ],
     }
-  }
+  },
 }
 </script>
 

@@ -3,10 +3,10 @@ import VueRouter from 'vue-router'
 /*Page active*/
 
 
-import index from "../components/index";
 import route from "../components/route/index";
 import routepay from "../components/route-pay/index";
 import conversion from "../components/conversion/index";
+import slozno from "../components/conversion/help";
 import conversionUser from "../components/conversion/user/index";
 
 
@@ -17,20 +17,20 @@ const routes = [
 
     {
         path: '/',
-        name: 'index',
-        component: index
+        name: 'conversion',
+        component: conversion
     },{
         path: '/route',
         name: 'route',
         component: route
     },{
+        path: '/slozno',
+        name: 'slozno',
+        component: slozno
+    },{
         path: '/gsm',
         name: 'routepay',
         component: routepay
-    },{
-        path: '/conversion',
-        name: 'conversion',
-        component: conversion
     },{
         path: '/conversion/:id',
         name: 'conversionUser',

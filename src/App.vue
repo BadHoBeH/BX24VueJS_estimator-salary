@@ -1,5 +1,6 @@
 <template>
   <div style="position: relative" id="main" ref="main">
+    <a-back-top />
     <menuz/>
     <router-view/>
     <resize-observer @notify="updateViewSize" />
@@ -29,7 +30,7 @@ export default {
   methods: {
 
     ...mapActions({
-      getUser: 'user/getSelect',
+      getUser: 'user/getSync',
     }),
 
 

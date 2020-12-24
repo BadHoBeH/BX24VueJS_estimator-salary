@@ -2,7 +2,7 @@ import Vue from 'vue'
 export const namespaced = true;
 
 import Bitrix from '@2bad/bitrix'
-const bitrix = Bitrix('https://crm.sknebo.ru/rest/4/gejvakwi1ftwa6i0')
+const bitrix = Bitrix('')
 
 
 export const state = {
@@ -60,11 +60,10 @@ export const actions = {
         try  {
             const { result } = await bitrix.deals.list(query)
                 commit('PUSHK_ALL_DATA',{array:result, key:'ID'})
-                console.log(result)
+                commit('SET_ALL_LOADING', state.all.loading-1);
         } catch (e){
-            commit('SET_ALL_STATUS', 'error')
             commit('SET_ALL_ERROR', e.message)
-            console.log('Error', e.message)
+            console.error(e.message)
         }
     },
 
