@@ -14,6 +14,9 @@
         <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
         <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
         <a-statistic slot="cash" :value-style="cash.type > 0 ? cash.type === 2 ? {color: 'green'} : {color: 'black'} : {color: 'red'} " slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
+        <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
+        <a-statistic slot="saleproc" slot-scope="saleproc" :precision="2" suffix="%" :value="saleproc"/>
+        <a-statistic slot="itog" :value-style="itog.type > 0 ? itog.type === 2 ? {color: 'green'} : {color: 'black'} : {color: 'red'} " slot-scope="itog" :precision="2" suffix="₽" :value="itog.money"/>
       </a-table>
 
     <a-divider v-if="untargetData.length">Догоняющие</a-divider>
@@ -24,6 +27,8 @@
         <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
         <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
         <a-statistic slot="cash" slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
+        <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
+        <a-statistic slot="itog"  slot-scope="itog" :precision="1" suffix="₽" :value="itog"/>
       </a-table>
 
     <a-divider v-if="blank.length">Холостые</a-divider>
@@ -50,7 +55,10 @@ export default {
             {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера',key:'dateZamer',dataIndex:'dateZamer'},
             {scopedSlots: {customRender:'dateSuccess'},title: 'Дата подписания',key:'dateSuccess',dataIndex:'dateSuccess'},
             {scopedSlots: {customRender:'sum'}, title: 'Сумма замера',key:'sum',dataIndex:'sum'},
+            {scopedSlots: {customRender:'saleproc'}, title: 'Процент скидки', key:'saleproc',dataIndex:'saleproc'},
+            {scopedSlots: {customRender:'sale'}, title: 'Бонус скидки', key:'sale',dataIndex:'sale'},
             {scopedSlots: {customRender:'cash'}, title: 'Выплата за объект',key:'cash',dataIndex:'cash'},
+            {scopedSlots: {customRender:'itog'}, title: 'Итог', key:'itog',dataIndex:'itog'},
             ],
       },
       data: this.$route.params.data
@@ -60,8 +68,12 @@ export default {
     targetData() {
       let a = [];
       this.$route.params.data.target.forEach((i) => {
+        // const sale = i.UF_CRM_1582722192816 === null ? null : Number(i.UF_CRM_1582722192816);
+        const s2 = Number(i.sale);
         let data = {
           title: {id: i.ID, title: i.TITLE},
+          sale: s2,
+          saleproc: i.UF_CRM_1582722192816,
           dateZamer: i.UF_CRM_1595577914,
           dateSuccess: (i.UF_CRM_1572957239 > 0 && !i.UF_CRM_1593965424) ? moment(i.UF_CRM_1591089625).format('DD MMMM YYYY') : (i.UF_CRM_1593965424) ? 'Дизайн' : 'Не подписан',
           sum: i.UF_CRM_1569506341,
@@ -70,9 +82,15 @@ export default {
             type: i.UF_CRM_1593965424 !== null ?
                 0 : (Number (i.UF_CRM_1572957239) && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch())) ?
                     2 : i.UF_CRM_1572957239
+          },
+          itog: {
+            money: s2 + (i.UF_CRM_1569506341 *(this.$route.params.rate / 100)),
+            type: i.UF_CRM_1593965424 !== null ?
+                0 : (Number (i.UF_CRM_1572957239) && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch())) ?
+                    2 : i.UF_CRM_1572957239
           }
         }
-        console.log(i.UF_CRM_1593965424, i.UF_CRM_1572957239, data)
+        // console.log(i.UF_CRM_1593965424, i.UF_CRM_1572957239, data)
         a.push(data)
       })
       return a
@@ -81,8 +99,12 @@ export default {
     untargetData() {
       let a = [];
       this.$route.params.data.untarget.forEach((i) => {
+        const s2 = Number(i.sale);
         let data = {
           title: {id: i.ID, title: i.TITLE},
+          sale: s2,
+          saleproc: i.UF_CRM_1582722192816,
+          itog: ((s2/100) * i.UF_CRM_1569506341) + (i.UF_CRM_1569506341 *(this.$route.params.rate / 100)),
           dateZamer: i.UF_CRM_1595577914,
           dateSuccess: (i.UF_CRM_1572957239 > 0) ? moment(i.UF_CRM_1591089625).format('DD MMMM YYYY') : (i.UF_CRM_1593965424) ? 'Дизайн подписан' : 'Не подписан',
           sum: i.UF_CRM_1569506341,

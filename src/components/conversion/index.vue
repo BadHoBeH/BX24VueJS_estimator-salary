@@ -98,22 +98,38 @@
           <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
             <a-col :span="8">
                 <a-statistic suffix="₽"
-                             :title="`Основная зарплата`" :precision="2"
+                             :title="`Зарплата текущего месяца`" :precision="2"
                              :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
             <a-col :span="8">
               <a-statistic suffix="₽" v-if="i.untarget.length"
-                           :title="`С предыдущих месяцов`" :precision="2"
+                           :title="`Зарплата предыдущих месяцев`" :precision="2"
                            :value="sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
+            </a-col>
+          </a-tooltip>
+          <a-tooltip :title="`Бонусы текущего месяца`">
+            <a-col :span="8">
+              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target), (i) => Number(i.sale))"
+                           :title="`Бонусы текущего месяца`" :precision="2"
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+            </a-col>
+          </a-tooltip>
+          <a-tooltip :title="`Бонусы с предыдущих месяцев`">
+            <a-col :span="8">
+              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
+                           :title="`Бонусы с предыдущих месяцев`" :precision="2"
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)} + ${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)}`">
           <a-col :span="8">
-            <a-statistic suffix="₽" v-if="i.untarget.length"
+            <a-statistic suffix="₽" v-if="i.untarget.length || sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                          :title="`Итого по зарплате`" :precision="2"
-                         :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100) + sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
+                         :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
+                          + sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
+                          + sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
           </a-col>
           </a-tooltip>
         </a-card>
@@ -169,22 +185,38 @@
           <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
             <a-col :span="8">
               <a-statistic suffix="₽"
-                           :title="`Основная зарплата`" :precision="2"
+                           :title="`Зарплата текущего месяца`" :precision="2"
                            :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
             <a-col :span="8">
               <a-statistic suffix="₽" v-if="i.untarget.length"
-                           :title="`С предыдущих месяцов`" :precision="2"
+                           :title="`Зарплата предыдущих месяцев`" :precision="2"
                            :value="sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
+            </a-col>
+          </a-tooltip>
+          <a-tooltip :title="`Бонусы текущего месяца`">
+            <a-col :span="8">
+              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target), (i) => Number(i.sale))"
+                           :title="`Бонусы текущего месяца`" :precision="2"
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+            </a-col>
+          </a-tooltip>
+          <a-tooltip :title="`Бонусы с предыдущих месяцев`">
+            <a-col :span="8">
+              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
+                           :title="`Бонусы с предыдущих месяцев`" :precision="2"
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)} + ${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)}`">
             <a-col :span="8">
-              <a-statistic suffix="₽" v-if="i.untarget.length"
+              <a-statistic suffix="₽" v-if="i.untarget.length || sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                            :title="`Итого по зарплате`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100) + sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
+                          + sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
+                          + sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
         </a-card>
@@ -205,7 +237,7 @@ export default {
   data() {
     return {
       columns : !localStorage.getItem('columns') ? true : localStorage.getItem('columns') === 'true' ? true : false,
-      month:moment(),
+      month: new Date().getDate() > 16 ? moment() : moment().subtract(1, 'months'),
       user:'',
     }
   },
@@ -235,6 +267,11 @@ export default {
       forEach(this.listDeal, (data) => {
         let DateEstimate = moment(data.UF_CRM_1595577914)
         let DateSuccess = moment(data.UF_CRM_1591089625)
+        if (DateSuccess.isAfter(moment('2021-01-31'), "day") && DateEstimate.isAfter(moment('2021-01-31'), "day")) {
+          const s1 = data.UF_CRM_1582722192816 === null ? null : Number(data.UF_CRM_1582722192816);
+          data.sale = s1 < 10 ? s1 <= 5 ? s1 === 5 ? 0.5 : s1 === 0 ? 1 : '?' : 0 : 0;
+          data.sale = data.sale > 0 ? (data.sale/100) * data.UF_CRM_1569506341 : 0;
+        } else data.sale = 0;
         /* Убрал дополнительную проверку 02.11.2020*/
         if (!data.UF_CRM_1568623658) return;
         if (!a[data.UF_CRM_1568623658]){
@@ -245,6 +282,7 @@ export default {
             name: this.listUser[data.UF_CRM_1568623658]?this.listUser[data.UF_CRM_1568623658].NAME : data.UF_CRM_1568623658
           }
         }
+        // UF_CRM_1582722192816
         if (DateEstimate.isSame(this.month, 'month') && data.UF_CRM_1591100871 != 510) {
           a[data.UF_CRM_1568623658].target.push(data)
           sum.target.push(data)
@@ -313,6 +351,9 @@ export default {
         case c >= 50 :
           stavka = 3.5;
           break;
+          case c >= 60 :
+          stavka = 4.5;
+          break;
         default: stavka = 1.5
       }
       if (conversionCash >= 35) stavka += 0.5
@@ -346,7 +387,7 @@ export default {
           '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
           '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
         },
-        select: ['ID','TITLE','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
+        select: ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
       })
      await this.getDealData({
         filter: {
@@ -356,7 +397,7 @@ export default {
           '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
           '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
         },
-        select: ['ID','TITLE','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
+        select: ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
       })
     },
 

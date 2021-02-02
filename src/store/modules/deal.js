@@ -2,7 +2,7 @@ import Vue from 'vue'
 export const namespaced = true;
 
 import Bitrix from '@2bad/bitrix'
-const bitrix = Bitrix('')
+const bitrix = Bitrix('https://crm.sknebo.ru/rest/4/gejvakwi1ftwa6i0/')
 
 
 export const state = {
