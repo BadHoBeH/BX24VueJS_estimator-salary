@@ -113,17 +113,21 @@
             <a-col :span="8">
               <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target), (i) => Number(i.sale))"
                            :title="`Бонусы текущего месяца`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`Бонусы с предыдущих месяцев`">
             <a-col :span="8">
               <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                            :title="`Бонусы с предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+                           :value="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
-          <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)} + ${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)}`">
+          <a-tooltip :title="`
+            Основной ${(sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
+          + с предыдущих ${(sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
+          + бонус тек. ${sumBy(getSuccess(i.target), (i) => Number(i.sale)).toFixed(2)}
+          + бонус пред. ${sumBy(getSuccess(i.untarget), (i) => Number(i.sale)).toFixed(2)}`">
           <a-col :span="8">
             <a-statistic suffix="₽" v-if="i.untarget.length || sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                          :title="`Итого по зарплате`" :precision="2"
@@ -200,17 +204,21 @@
             <a-col :span="8">
               <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target), (i) => Number(i.sale))"
                            :title="`Бонусы текущего месяца`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`Бонусы с предыдущих месяцев`">
             <a-col :span="8">
               <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                            :title="`Бонусы с предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+                           :value="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
             </a-col>
           </a-tooltip>
-          <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)} + ${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100).toFixed(2)}`">
+          <a-tooltip :title="`
+            Основной ${(sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
+          + с предыдущих ${(sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
+          + бонус тек. ${sumBy(getSuccess(i.target), (i) => Number(i.sale)).toFixed(2)}
+          + бонус пред. ${sumBy(getSuccess(i.untarget), (i) => Number(i.sale)).toFixed(2)}`">
             <a-col :span="8">
               <a-statistic suffix="₽" v-if="i.untarget.length || sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                            :title="`Итого по зарплате`" :precision="2"
