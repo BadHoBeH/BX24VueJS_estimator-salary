@@ -28,7 +28,7 @@
         </a-col>
         <a-col :span="8">
           <a-statistic :title="'Замерено / холостых'" :value="mathSall[1].target.length" :suffix="'/ ' + mathSall[1].blank.length"/>
-          <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(mathSall[1].target).length" :suffix="'/ '+getDesing(mathSall[1].target).length" />
+          <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(mathSall[1].target).length" :suffix="'/ '+getDesign(mathSall[1].target).length" />
           <a-tooltip title="Догоняющие замеры">
             <a-statistic v-if="mathSall[1].untarget.length" title="Подписано после 7-го" :value="mathSall[1].untarget.length"/>
           </a-tooltip>
@@ -70,7 +70,7 @@
             </a-col>
             <a-col :span="8">
               <a-statistic :title="'Замерено / холостых'" :value="i.target.length" :suffix="'/ ' + i.blank.length"/>
-              <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(i.target).length" :suffix="'/ '+getDesing(i.target).length" />
+              <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(i.target).length" :suffix="'/ '+getDesign(i.target).length" />
               <a-tooltip title="Догоняющие замеры">
                 <a-statistic v-if="i.untarget.length" title="Подписано после 7-го" :value="i.untarget.length"/>
               </a-tooltip>
@@ -161,7 +161,7 @@
             </a-col>
             <a-col :span="8">
               <a-statistic :title="'Замерено / холостых'" :value="i.target.length" :suffix="'/ ' + i.blank.length"/>
-              <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(i.target).length" :suffix="'/ '+getDesing(i.target).length" />
+              <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(i.target).length" :suffix="'/ '+getDesign(i.target).length" />
               <a-tooltip title="Догоняющие замеры">
                 <a-statistic v-if="i.untarget.length" title="Подписано после 7-го" :value="i.untarget.length"/>
               </a-tooltip>
@@ -212,6 +212,13 @@
               <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
                            :title="`Бонусы с предыдущих месяцев`" :precision="2"
                            :value="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
+            </a-col>
+          </a-tooltip>
+          <a-tooltip :title="`Бонусы за дизайн`">
+            <a-col :span="8">
+              <a-statistic suffix="₽"  v-if="getDesignBonus(i.untarget)"
+                           :title="`Бонусы дизайн`" :precision="2"
+                           :value="getDesignBonus(i.untarget)"/>
             </a-col>
           </a-tooltip>
           <a-tooltip :title="`
@@ -275,22 +282,42 @@ export default {
       forEach(this.listDeal, (data) => {
         let DateEstimate = moment(data.UF_CRM_1595577914)
         let DateSuccess = moment(data.UF_CRM_1591089625)
+        let DateDesign = moment(data.UF_CRM_1615979431);
+        let DesignIf = {
+          selfEstimate: DateEstimate.isSame(this.month, 'month')
+              && DateDesign.isBetween(this.month.clone().startOf('month'), this.month.clone().startOf('month').add(1,'months').add(7,'days'), undefined, '(]'),
+          selfOnly: DateEstimate.isBefore(this.month, 'month') && DateDesign.isSame(this.month, 'month'),
+        }
         if (DateSuccess.isAfter(moment('2021-01-31'), "day") && DateEstimate.isAfter(moment('2021-01-31'), "day")) {
           const s1 = data.UF_CRM_1582722192816 === null ? null : Number(data.UF_CRM_1582722192816);
           data.sale = s1 < 10 ? s1 <= 5 ? s1 === 5 ? 0.5 : s1 === 0 ? 1 : '?' : 0 : 0;
           data.sale = data.sale > 0 ? (data.sale/100) * data.UF_CRM_1569506341 : 0;
         } else data.sale = 0;
-        /* Убрал дополнительную проверку 02.11.2020*/
         if (!data.UF_CRM_1568623658) return;
         if (!a[data.UF_CRM_1568623658]){
           a[data.UF_CRM_1568623658] = {
             target:[],
+            target2: {
+              desing: [],
+              estimate: [],
+            },
             untarget:[],
+            untarget2:{
+              desing: [],
+              estimate: [],
+            },
             blank:[],
-            name: this.listUser[data.UF_CRM_1568623658]?this.listUser[data.UF_CRM_1568623658].NAME : data.UF_CRM_1568623658
+            name: this.listUser[data.UF_CRM_1568623658]
+                ? this.listUser[data.UF_CRM_1568623658].NAME
+                : data.UF_CRM_1568623658
           }
         }
-        // UF_CRM_1582722192816
+        if (DesignIf.selfEstimate) {
+          a[data.UF_CRM_1568623658].target2.desing.push(data)
+        }
+        if (DesignIf.selfOnly) {
+          a[data.UF_CRM_1568623658].untarget2.desing.push(data)
+        }
         if (DateEstimate.isSame(this.month, 'month') && data.UF_CRM_1591100871 != 510) {
           a[data.UF_CRM_1568623658].target.push(data)
           sum.target.push(data)
@@ -299,12 +326,6 @@ export default {
           a[data.UF_CRM_1568623658].blank.push(data)
           sum.blank.push(data)
         }
-        /*if (DateSuccess.isSame(this.month, 'month') && DateEstimate.isBefore(this.month, 'month')){
-          if  (
-                ( DateEstimate.isSame(this.month.clone().add(-1, 'months'), 'month') && DateSuccess.isAfter(this.month.clone().startOf('month').add(7,'days') ) ||
-                ( DateEstimate.isBefore(this.month.clone().add(-1, 'months'), 'month')))
-              )   a[data.UF_CRM_1568623658].untarget.push(data)
-        }*/
         if (DateEstimate.isBefore(this.month.clone(), 'month') &&
             moment(DateSuccess).isBetween(this.month.clone().startOf('month').add(7,'days'), this.month.clone().add(1,'months').startOf('month').add(7,'days'), undefined, '(]')){
           a[data.UF_CRM_1568623658].untarget.push(data)
@@ -312,6 +333,7 @@ export default {
         }
 
       })
+      console.log(a)
       return [a,sum]
     }
 
@@ -325,7 +347,7 @@ export default {
     },
 
     conversion(target){
-      return round(((this.getSuccess(target).length+ this.getDesing(target).length ) / target.length) * 100, 2)
+      return round(((this.getSuccess(target).length+ this.getDesign(target).length ) / target.length) * 100, 2)
     },
 
     setColumns(){
@@ -334,8 +356,13 @@ export default {
     getSuccess(data){
       return data.filter((i) =>  { return (i.UF_CRM_1591100871 !== null && i.UF_CRM_1591100871 == 421) && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch)})
     },
-    getDesing(data){
-      return data.filter((i) =>  { return i.UF_CRM_1593965424 && moment(i.UF_CRM_1595577914).isSameOrBefore(this.otch)})
+    getDesign(data){
+      return data.filter((i) => {
+        moment(i.UF_CRM_1615979431).isSame(this.otch)
+      })
+    },
+    getDesignBonus(data) {
+      return sumBy(this.getDesign(data), 'UF_CRM_1618824869');
     },
     getBlank(data){
       return data.filter((i) =>  { return i.UF_CRM_1591100871 == 510})
@@ -388,25 +415,30 @@ export default {
     }),
 
     async getDeal(date) {
+      let select = ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1591100871', 'UF_CRM_1615979431']
+      /*  [Замеры, Дизайны, Передачи]   */
+      await [{
+        '>=UF_CRM_1595577914':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
+        '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
+        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+      }, {
+        '>UF_CRM_1569506341': 0,
+        '>=UF_CRM_1615979431':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
+        '<=UF_CRM_1615979431':moment(date).add('days', 7).format('DD.MM.YYYY HH:mm:ss'),
+        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+      }, {
+        'UF_CRM_1572957239': "1",
+        '>=UF_CRM_1591089625':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
+        '<=UF_CRM_1591089625':moment(date).endOf('month').add('days', 7).format('DD.MM.YYYY HH:mm:ss'),
+        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+        '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
+      }]
+          .map((filter) => {
+         this.getDealData({
+          filter, select
+        })
+      })
 
-      await this.getDealData({
-        filter: {
-          '>=UF_CRM_1595577914':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
-          '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
-          '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
-        },
-        select: ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
-      })
-     await this.getDealData({
-        filter: {
-          'UF_CRM_1572957239': "1",
-          '>=UF_CRM_1591089625':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
-          '<=UF_CRM_1591089625':moment(date).endOf('month').add('days', 7).format('DD.MM.YYYY HH:mm:ss'),
-          '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
-          '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
-        },
-        select: ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1593965424','UF_CRM_1591100871']
-      })
     },
 
   },
