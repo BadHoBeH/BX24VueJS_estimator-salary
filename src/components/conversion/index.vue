@@ -157,11 +157,10 @@
                   id: i.UF_CRM_1568623658,
                   data: i,
                   date: month,
-                  rate: getRate(conversion(i.target, 'all'))
+                  rate: getRate(conversion(i.target, 'obj').val, conversion(i.target, 'cash').val)
                 }
             })"
         >
-
           <a-row>
             <a-col :span="8">
               <h4>Конверсия {{i.name}}</h4>
@@ -213,60 +212,15 @@
                 :strokeColor="conversion(i.target, 'cash', 2).color"
                 :percent="conversion(i.target, 'cash', 2).val"/>
           </div>
-<!--
-          <a-divider>Зарплата:</a-divider>
-          <a-col :span="8">
-            <a-statistic title="Ставка" :precision="2" suffix="%"
-                         :value="getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))"/>
-          </a-col>
-          <a-tooltip :title="`${sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))}%`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"
-                           :title="`Зарплата текущего месяца`" :precision="2"
-                           :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)"/>
+          <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
+          <div>
+            <a-col v-for="(i2, k2) in summaryData(i, true)" :key="k2" :span="i2.col.span">
+              <a-statistic :suffix="i2.statistic.suffix"
+                           :title="i2.statistic.title"
+                           :precision="i2.statistic.precision"
+                           :value="i2.statistic.value"/>
             </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`${sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))}%`">
-            <a-col :span="8">
-              <a-statistic suffix="₽" v-if="i.untarget.estimate.length"
-                           :title="`Зарплата предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`Бонусы текущего месяца`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target.estimate), (i) => Number(i.sale))"
-                           :title="`Бонусы текущего месяца`" :precision="2"
-                           :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.sale))"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`Бонусы с предыдущих месяцев`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.sale))"
-                           :title="`Бонусы с предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.sale))"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`Бонусы за дизайн`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"  v-if="getDesignBonus(i.untarget.estimate)"
-                           :title="`Бонусы дизайн`" :precision="2"
-                           :value="getDesignBonus(i.untarget.estimate)"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`
-            Основной ${(sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)).toFixed(2)}
-          + с предыдущих ${(sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)).toFixed(2)}
-          + бонус тек. ${sumBy(getSuccess(i.target.estimate), (i) => Number(i.sale)).toFixed(2)}
-          + бонус пред. ${sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.sale)).toFixed(2)}`">
-            <a-col :span="8">
-              <a-statistic suffix="₽" v-if="i.untarget.estimate.length || sumBy(getSuccess(i.target.estimate), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.sale))"
-                           :title="`Итого по зарплате`" :precision="2"
-                           :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)
-                          + sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target.estimate), conversionCash(i.target.estimate))/100)
-                          + sumBy(getSuccess(i.target.estimate), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget.estimate), (i) => Number(i.sale))"/>
-            </a-col>
-          </a-tooltip>-->
+          </div>
         </a-card>
       </div>
     </div>
@@ -277,9 +231,17 @@
 
 <script>
 import {mapActions,mapState} from 'vuex'
-import { forEach, sumBy, round, size, mapValues } from 'lodash'
+import { forEach, sumBy, round, size,
+  mapValues, mapKeys as _mapKeys,
+  filter as _filter, reduce as _reduce } from 'lodash'
 import moment from 'moment'
 import Bitrix24 from "bitrix24-vue";
+const defSpan = 8;
+const defPrecision = 2;
+const defSuffix = {
+  proc: '%',
+  rub: '₽'
+};
 
 export default {
   data() {
@@ -287,6 +249,96 @@ export default {
       columns : !localStorage.getItem('columns') ? true : localStorage.getItem('columns') === 'true',
       month: new Date().getDate() > 16 ? moment() : moment().subtract(1, 'months'),
       user:'',
+      fieldSummary: {
+        rate: {
+          sum: false,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.proc,
+            title: 'Ставка',
+            precision: defPrecision,
+          },
+        },
+        salarySelectEstimate: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Зарплата текущего месяца',
+            precision: defPrecision,
+          },
+        },
+        salaryAppendEstimate: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Зарплата с прошлых месяцов',
+            precision: defPrecision,
+          },
+        },
+        bonusSelectEstimate: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Бонусы ремонтов этого месяца',
+            precision: defPrecision,
+          },
+        },
+        bonusAppendEstimate: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Бонусы ремонтов предыдущих месяцов',
+            precision: defPrecision,
+          },
+        },
+        bonusSelectDesign: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Бонусы дизайнов этого месяца',
+            precision: defPrecision,
+          },
+        },
+        bonusAppendDesign: {
+          sum: true,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Бонусы дизайнов предыдущих месяцов',
+            precision: defPrecision,
+          },
+        },
+        sum: {
+          sum: false,
+          col : {
+            span: defSpan,
+          },
+          statistic: {
+            suffix: defSuffix.rub,
+            title: 'Итого',
+            precision: defPrecision,
+          },
+        },
+      },
     }
   },
 
@@ -380,10 +432,46 @@ export default {
   },
 
   methods:{
-    sumBy,round,size,mapValues,
+    sumBy,round,size,mapValues,_mapKeys,_filter,_reduce,
 
-    conversionCash(target) {
-      return round(((sumBy(this.getSuccess(target), (i) => Number(i.UF_CRM_1569506341)))*100/sumBy(target, (i) => Number(i.UF_CRM_1569506341))),2)
+    summaryData(data, nnull = true) {
+      let success = {
+        target: {
+          estimate: this.getSuccess(data.target.estimate),
+        },
+        untarget:{
+          estimate: this.getSuccess(data.untarget.estimate),
+        }
+      };
+      let a = mapValues(this.fieldSummary, (i, k) => {
+        switch (k) {
+          case 'rate': {
+            i.statistic.value = this.getRate(this.conversion(data.target, 'obj').val, this.conversion(data.target, 'cash').val)
+            break;
+          } case 'salarySelectEstimate': {
+            i.statistic.value = sumBy(success.target.estimate, (i) => Number(i.UF_CRM_1569506341)) * (this.fieldSummary.rate.statistic.value/100 || 0)
+            break;
+          } case 'salaryAppendEstimate': {
+            i.statistic.value = sumBy(success.untarget.estimate, (i) => Number(i.UF_CRM_1569506341)) * (this.fieldSummary.rate.statistic.value/100 || 0)
+            break;
+          } case 'bonusSelectEstimate': {
+            i.statistic.value = sumBy(success.target.estimate, (i) => Number(i.sale))
+            break;
+          } case 'bonusAppendEstimate': {
+            i.statistic.value = sumBy(success.untarget.estimate, (i) => Number(i.sale))
+            break;
+          } case 'bonusSelectDesign': {
+            i.statistic.value = sumBy(data.target.design, (i) => Number(i.UF_CRM_1618824869))
+            break;
+          } case 'bonusAppendDesign': {
+            i.statistic.value = sumBy(data.untarget.design, (i) => Number(i.UF_CRM_1618824869))
+            break;
+          }
+        }
+        return i;
+      });
+      a.sum.statistic.value = _reduce(a, (sum, i4) => i4.sum ? sum + i4.statistic.value : sum, 0)
+      return _filter(a, (i3) => (!nnull || i3.statistic.value));
     },
 
     /**
@@ -476,7 +564,7 @@ export default {
     }),
 
     async getDeal(date) {
-      let select = ['ID','TITLE', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1591100871', 'UF_CRM_1615979431']
+      let select = ['ID','TITLE', 'UF_CRM_1618824869', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1591100871', 'UF_CRM_1615979431']
       /*  [Замеры, Дизайны, Передачи]   */
       await [{
         '>=UF_CRM_1595577914':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
@@ -485,7 +573,7 @@ export default {
       }, {
         '>UF_CRM_1569506341': 0,
         '>=UF_CRM_1615979431':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
-        '<=UF_CRM_1615979431':moment(date).add('days', 7).format('DD.MM.YYYY HH:mm:ss'),
+        '<=UF_CRM_1615979431':moment(date).endOf('month').add('day', 7).format('DD.MM.YYYY HH:mm:ss'),
         '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
       }, {
         'UF_CRM_1572957239': "1",

@@ -5,10 +5,21 @@
         sub-title="Подробная конверсия"
         @back="$router.go(-1)"
     />
-    <a-divider>Замеры</a-divider>
+    <div v-for="i in convert(data)" :key="i.key">
+      <a-divider>{{ i.title }}</a-divider>
+      <a-table :pagination="i.pagination || false" :columns="i.columns" :data-source="i.dataSource">
+        <component v-for="ic in i.columns"
+                   :key="ic.slot"
+                   :is="ic.tag || 'a'"
+                   :slot="ic.slot"
+                   :slot-scope="ic.slotScope">
+          {{ a.value }}
+        </component>
+      </a-table>
+    </div>
 
 
-      <a-table :pagination="false" :columns="columns.target" :data-source="targetData">
+<!--      <a-table :pagination="false" :columns="columns.target" :data-source="targetData">
         <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
         <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
         <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
@@ -17,11 +28,11 @@
         <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
         <a-statistic slot="saleproc" slot-scope="saleproc" :precision="2" suffix="%" :value="saleproc"/>
         <a-statistic slot="itog" :value-style="itog.type > 0 ? itog.type === 2 ? {color: 'green'} : {color: 'black'} : {color: 'red'} " slot-scope="itog" :precision="2" suffix="₽" :value="itog.money"/>
-      </a-table>
+      </a-table>-->
 
-    <a-divider v-if="untargetData.length">Догоняющие</a-divider>
+<!--    <a-divider v-if="untargetData.length">Догоняющие</a-divider>-->
 
-      <a-table v-if="untargetData.length" :pagination="false" :columns="columns.target" :data-source="untargetData">
+<!--      <a-table v-if="untargetData.length" :pagination="false" :columns="columns.target" :data-source="untargetData">
         <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
         <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
         <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
@@ -29,43 +40,62 @@
         <a-statistic slot="cash" slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
         <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
         <a-statistic slot="itog"  slot-scope="itog" :precision="1" suffix="₽" :value="itog"/>
-      </a-table>
+      </a-table>-->
 
-    <a-divider v-if="blank.length">Холостые</a-divider>
+<!--    <a-divider v-if="blank.length">Холостые</a-divider>-->
 
-      <a-table v-if="blank.length" :pagination="false" :columns="columns.target" :data-source="blank">
+<!--      <a-table v-if="blank.length" :pagination="false" :columns="columns.target" :data-source="blank">
         <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
         <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
         <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
         <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
         <a-statistic slot="cash" slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
-      </a-table>
+      </a-table>-->
 
   </div>
 </template>
 
 <script>
 import moment from 'moment'
+const columns = {
+  def: [
+  {scopedSlots: {customRender:'title'}, title: 'ID',key:'title',dataIndex:'TITLE'},
+  {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера',key:'dateZamer',dataIndex:'UF_CRM_1595577914'},
+  {scopedSlots: {customRender:'dateSuccess'},title: 'Дата подписания',key:'dateSuccess',dataIndex:'UF_CRM_1591089625'},
+  {scopedSlots: {customRender:'sum'}, title: 'Сумма замера',key:'sum',dataIndex:'sum'},
+  {scopedSlots: {customRender:'saleproc'}, title: 'Процент скидки', key:'saleproc',dataIndex:'saleproc'},
+  {scopedSlots: {customRender:'sale'}, title: 'Бонус скидки', key:'sale',dataIndex:'sale'},
+  {scopedSlots: {customRender:'design'}, title: 'Бонус дизайна', key:'design',dataIndex:'design'},
+  {scopedSlots: {customRender:'cash'}, title: 'Выплата за объект',key:'cash',dataIndex:'cash'},
+  {scopedSlots: {customRender:'itog'}, title: 'Итог', key:'itog',dataIndex:'itog'},
+]}
+
 export default {
   data() {
     return {
-      columns: {
-        target: [
-            {scopedSlots: {customRender:'title'}, title: 'ID',key:'title',dataIndex:'title'},
-            {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера',key:'dateZamer',dataIndex:'dateZamer'},
-            {scopedSlots: {customRender:'dateSuccess'},title: 'Дата подписания',key:'dateSuccess',dataIndex:'dateSuccess'},
-            {scopedSlots: {customRender:'sum'}, title: 'Сумма замера',key:'sum',dataIndex:'sum'},
-            {scopedSlots: {customRender:'saleproc'}, title: 'Процент скидки', key:'saleproc',dataIndex:'saleproc'},
-            {scopedSlots: {customRender:'sale'}, title: 'Бонус скидки', key:'sale',dataIndex:'sale'},
-            {scopedSlots: {customRender:'cash'}, title: 'Выплата за объект',key:'cash',dataIndex:'cash'},
-            {scopedSlots: {customRender:'itog'}, title: 'Итог', key:'itog',dataIndex:'itog'},
-            ],
-      },
+      table: [
+        {
+          key: 'tEstimate',
+          title: 'Замеры (все замеры за месяц)',
+          dataSource: null,
+          columns: columns.def
+        }, {
+          key: 'uEstimate',
+          title: 'Замеры (догнали)',
+          dataSource: null,
+          columns: columns.def
+        }, {
+          key: 'uDesign',
+          title: 'Дизайны (догнали)',
+          dataSource: null,
+          columns: columns.def
+        }
+      ],
       data: this.$route.params.data
     }
   },
   computed: {
-    targetData() {
+    /*targetData() {
       let a = [];
       this.$route.params.data.target.forEach((i) => {
         // const sale = i.UF_CRM_1582722192816 === null ? null : Number(i.UF_CRM_1582722192816);
@@ -94,9 +124,9 @@ export default {
         a.push(data)
       })
       return a
-    },
+    },*/
 
-    untargetData() {
+    /*untargetData() {
       let a = [];
       this.$route.params.data.untarget.forEach((i) => {
         const s2 = Number(i.sale);
@@ -113,9 +143,9 @@ export default {
         a.push(data)
       })
       return a
-    },
+    },*/
 
-    blank() {
+    /*blank() {
       let a = [];
       this.$route.params.data.blank.forEach((i) => {
         let data = {
@@ -128,7 +158,7 @@ export default {
         a.push(data)
       })
       return a
-    },
+    },*/
 
 
   },
@@ -137,16 +167,20 @@ export default {
   methods:{
     moment,
 
-    otch(){
+    convert(data) {
+
+      console.log(data)
+      return this.table;
+    },
+    /*otch(){
       const month = this.$route.params.date;
       return month.clone().endOf('month').add(7,'days') ? month.clone().endOf('month').add(7,'days') : 1
-    },
+    },*/
   },
 
 
   mounted() {
-    console.log(this.$route)
-    console.log(this.$route.params)
+
   }
 
 
