@@ -8,49 +8,18 @@
     <div v-for="i in convert(data)" :key="i.key">
       <a-divider>{{ i.title }}</a-divider>
       <a-table :pagination="i.pagination || false" :columns="i.columns" :data-source="i.dataSource">
-        <component v-for="ic in i.columns"
-                   :key="ic.slot"
-                   :is="ic.tag || 'a'"
-                   :slot="ic.slot"
-                   :slot-scope="ic.slotScope">
-          {{ a.value }}
-        </component>
+        <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
+        <span slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</span>
+        <span slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess ? moment(dateSuccess).format('DD MMMM YYYY') : 'Ещё не успешен' }}</span>
+        <span slot="dateSuccess" slot-scope="dateDesign">{{ dateDesign ? moment(dateDesign).format('DD MMMM YYYY') : 'Ещё не подписан' }}</span>
+        <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
+        <a-statistic slot="saleproc" slot-scope="saleproc" :precision="2" suffix="%" :value="saleproc"/>
+        <a-statistic slot="bSale" :value-style="bSale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
+        <a-statistic slot="payEst" :value-style="`color: ${payEst.color}`" slot-scope="payEst" :precision="1" suffix="₽" :value="payEst.val"/>
+        <a-statistic slot="paySum" slot-scope="paySum" :precision="1" suffix="₽" :value="paySum"/>
+        <a-statistic slot="bDesign" slot-scope="bDesign" :precision="1" suffix="₽" :value="bDesign.val"/>
       </a-table>
     </div>
-
-
-<!--      <a-table :pagination="false" :columns="columns.target" :data-source="targetData">
-        <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
-        <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
-        <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
-        <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
-        <a-statistic slot="cash" :value-style="cash.type > 0 ? cash.type === 2 ? {color: 'green'} : {color: 'black'} : {color: 'red'} " slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
-        <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
-        <a-statistic slot="saleproc" slot-scope="saleproc" :precision="2" suffix="%" :value="saleproc"/>
-        <a-statistic slot="itog" :value-style="itog.type > 0 ? itog.type === 2 ? {color: 'green'} : {color: 'black'} : {color: 'red'} " slot-scope="itog" :precision="2" suffix="₽" :value="itog.money"/>
-      </a-table>-->
-
-<!--    <a-divider v-if="untargetData.length">Догоняющие</a-divider>-->
-
-<!--      <a-table v-if="untargetData.length" :pagination="false" :columns="columns.target" :data-source="untargetData">
-        <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
-        <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
-        <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
-        <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
-        <a-statistic slot="cash" slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
-        <a-statistic slot="sale" :value-style="sale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
-        <a-statistic slot="itog"  slot-scope="itog" :precision="1" suffix="₽" :value="itog"/>
-      </a-table>-->
-
-<!--    <a-divider v-if="blank.length">Холостые</a-divider>-->
-
-<!--      <a-table v-if="blank.length" :pagination="false" :columns="columns.target" :data-source="blank">
-        <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
-        <a slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</a>
-        <a slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess }}</a>
-        <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
-        <a-statistic slot="cash" slot-scope="cash" :precision="2" suffix="₽" :value="cash.money"/>
-      </a-table>-->
 
   </div>
 </template>
@@ -59,15 +28,24 @@
 import moment from 'moment'
 const columns = {
   def: [
-  {scopedSlots: {customRender:'title'}, title: 'ID',key:'title',dataIndex:'TITLE'},
-  {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера',key:'dateZamer',dataIndex:'UF_CRM_1595577914'},
-  {scopedSlots: {customRender:'dateSuccess'},title: 'Дата подписания',key:'dateSuccess',dataIndex:'UF_CRM_1591089625'},
-  {scopedSlots: {customRender:'sum'}, title: 'Сумма замера',key:'sum',dataIndex:'sum'},
-  {scopedSlots: {customRender:'saleproc'}, title: 'Процент скидки', key:'saleproc',dataIndex:'saleproc'},
-  {scopedSlots: {customRender:'sale'}, title: 'Бонус скидки', key:'sale',dataIndex:'sale'},
-  {scopedSlots: {customRender:'design'}, title: 'Бонус дизайна', key:'design',dataIndex:'design'},
-  {scopedSlots: {customRender:'cash'}, title: 'Выплата за объект',key:'cash',dataIndex:'cash'},
-  {scopedSlots: {customRender:'itog'}, title: 'Итог', key:'itog',dataIndex:'itog'},
+  {scopedSlots: {customRender:'title'}, title: 'ID', key:'title', dataIndex:'title'},
+  {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера', key:'dateZamer', dataIndex:'UF_CRM_1595577914'},
+  {scopedSlots: {customRender:'dateSuccess'},title: 'Дата подписания', key:'dateSuccess', dataIndex:'UF_CRM_1591089625'},
+  {scopedSlots: {customRender:'sum'}, title: 'Сумма замера', key:'sum', dataIndex:'UF_CRM_1569506341'},
+  {scopedSlots: {customRender:'saleproc'}, title: 'Процент скидки', key:'saleproc', dataIndex:'UF_CRM_1582722192816'},
+  {scopedSlots: {customRender:'bSale'}, title: 'Бонус скидки', key:'bSale', dataIndex:'sale'},
+  {scopedSlots: {customRender:'bDesign'}, title: 'Бонус дизайна', key:'bDesign', dataIndex:'bDesign'},
+  {scopedSlots: {customRender:'payEst'}, title: 'Выплата за объект', key:'payEst',dataIndex:'payEst'},
+  {scopedSlots: {customRender:'paySum'}, title: 'Итого', key:'paySum',dataIndex:'paySum'},
+],  design: [
+  {scopedSlots: {customRender:'title'}, title: 'ID', key:'title', dataIndex:'title'},
+  {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера', key:'dateZamer', dataIndex:'UF_CRM_1595577914'},
+  {scopedSlots: {customRender:'dateDesign'},title: 'Дата подписания дизайна', key:'dateDesign', dataIndex:'UF_CRM_1615979431'},
+  {scopedSlots: {customRender:'bDesign'}, title: 'Бонус дизайна', key:'bDesign', dataIndex:'bDesign'},
+], blank: [
+  {scopedSlots: {customRender:'title'}, title: 'ID', key:'title', dataIndex:'title'},
+  {scopedSlots: {customRender:'dateZamer'},title: 'Дата замера', key:'dateZamer', dataIndex:'UF_CRM_1595577914'},
+    {scopedSlots: {customRender:'sum'}, title: 'Сумма замера', key:'sum', dataIndex:'UF_CRM_1569506341'},
 ]}
 
 export default {
@@ -88,77 +66,19 @@ export default {
           key: 'uDesign',
           title: 'Дизайны (догнали)',
           dataSource: null,
-          columns: columns.def
+          columns: columns.design
+        }, {
+          key: 'hEstimate',
+          title: 'Холостые',
+          dataSource: null,
+          columns: columns.blank
         }
       ],
       data: this.$route.params.data
     }
   },
   computed: {
-    /*targetData() {
-      let a = [];
-      this.$route.params.data.target.forEach((i) => {
-        // const sale = i.UF_CRM_1582722192816 === null ? null : Number(i.UF_CRM_1582722192816);
-        const s2 = Number(i.sale);
-        let data = {
-          title: {id: i.ID, title: i.TITLE},
-          sale: s2,
-          saleproc: i.UF_CRM_1582722192816,
-          dateZamer: i.UF_CRM_1595577914,
-          dateSuccess: (i.UF_CRM_1572957239 > 0 && !i.UF_CRM_1593965424) ? moment(i.UF_CRM_1591089625).format('DD MMMM YYYY') : (i.UF_CRM_1593965424) ? 'Дизайн' : 'Не подписан',
-          sum: i.UF_CRM_1569506341,
-          cash: {
-            money:i.UF_CRM_1569506341 * (this.$route.params.rate / 100),
-            type: i.UF_CRM_1593965424 !== null ?
-                0 : (Number (i.UF_CRM_1572957239) && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch())) ?
-                    2 : i.UF_CRM_1572957239
-          },
-          itog: {
-            money: s2 + (i.UF_CRM_1569506341 *(this.$route.params.rate / 100)),
-            type: i.UF_CRM_1593965424 !== null ?
-                0 : (Number (i.UF_CRM_1572957239) && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch())) ?
-                    2 : i.UF_CRM_1572957239
-          }
-        }
-        // console.log(i.UF_CRM_1593965424, i.UF_CRM_1572957239, data)
-        a.push(data)
-      })
-      return a
-    },*/
 
-    /*untargetData() {
-      let a = [];
-      this.$route.params.data.untarget.forEach((i) => {
-        const s2 = Number(i.sale);
-        let data = {
-          title: {id: i.ID, title: i.TITLE},
-          sale: s2,
-          saleproc: i.UF_CRM_1582722192816,
-          itog: ((s2/100) * i.UF_CRM_1569506341) + (i.UF_CRM_1569506341 *(this.$route.params.rate / 100)),
-          dateZamer: i.UF_CRM_1595577914,
-          dateSuccess: (i.UF_CRM_1572957239 > 0) ? moment(i.UF_CRM_1591089625).format('DD MMMM YYYY') : (i.UF_CRM_1593965424) ? 'Дизайн подписан' : 'Не подписан',
-          sum: i.UF_CRM_1569506341,
-          cash: {money:i.UF_CRM_1569506341 *(this.$route.params.rate / 100), type: i.UF_CRM_1593965424? 0 : i.UF_CRM_1572957239}
-        }
-        a.push(data)
-      })
-      return a
-    },*/
-
-    /*blank() {
-      let a = [];
-      this.$route.params.data.blank.forEach((i) => {
-        let data = {
-          title: {id: i.ID, title: i.TITLE},
-          dateZamer: i.UF_CRM_1595577914,
-          dateSuccess: (i.UF_CRM_1572957239 > 0) ? moment(i.UF_CRM_1591089625).format('DD MMMM YYYY') : (i.UF_CRM_1593965424) ? 'Дизайн подписан' : 'Не подписан',
-          sum: i.UF_CRM_1569506341,
-          cash: {money:i.UF_CRM_1569506341 *(this.$route.params.rate / 100), type: i.UF_CRM_1593965424?0:i.UF_CRM_1572957239}
-        }
-        a.push(data)
-      })
-      return a
-    },*/
 
 
   },
@@ -167,15 +87,42 @@ export default {
   methods:{
     moment,
 
-    convert(data) {
 
-      console.log(data)
-      return this.table;
+    convert(data) {
+      this.table.map((i) => {
+       switch (i.key) {
+          case 'uEstimate' :
+          case 'hEstimate' :
+          case 'tEstimate' : {
+            let module = (i.key === 'tEstimate') ? data.target : (i.key === 'uEstimate') ? data.untarget : data.blank
+            i.dataSource = module.estimate.map((i) => {
+              i.title = { id: i.ID, title: i.TITLE}
+              i.bDesign = (i.UF_CRM_1615979431 && module.design.find((i2) => i2.ID === i.ID))
+                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет'}
+                  : { val: 0, text: 'Дизайн не найден / идёт в другой месяц'};
+              i.payEst = {
+                val: i.UF_CRM_1569506341 * (this.$route.params.rate / 100),
+                color: i.UF_CRM_1591089625 ? 'green' : i.bDesign.val ? 'black' : 'red'}
+              i.paySum = Number ( Number (i.UF_CRM_1591089625 ? i.payEst.val : 0) +  Number(i.bDesign.val) + Number (i.sale));
+              return i;
+            })
+            break;
+          }
+          case 'uDesign': {
+            let module = data.untarget
+            i.dataSource = module.design.map((i) => {
+              i.title = { id: i.ID, title: i.TITLE}
+              i.bDesign = (i.UF_CRM_1615979431 && module.design.find((i2) => i2.ID === i.ID))
+                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет'}
+                  : { val: 0, text: 'Дизайн не найден / идёт в другой месяц'};
+              return i;
+            })
+            break;
+          }
+        }
+      })
+      return this.table.filter((i3) => i3.dataSource.length);
     },
-    /*otch(){
-      const month = this.$route.params.date;
-      return month.clone().endOf('month').add(7,'days') ? month.clone().endOf('month').add(7,'days') : 1
-    },*/
   },
 
 
