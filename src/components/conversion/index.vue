@@ -14,7 +14,7 @@
       </template>
     </a-result>
 
-<!--    <a-card
+    <a-card
         v-if="month && size(listDeal) && ['4','8','*'].includes(user)"
         style="margin: 0 .5rem 1rem .5rem; border-left: 6px solid #1890ff!important;"
         hoverable
@@ -23,32 +23,65 @@
 
       <a-row>
         <a-col :span="8">
-          <h4>Конверсия по отделу</h4>
-          <a-progress style="margin: 1rem" :strokeColor=" conversion(mathSall[1].target) > 40 ? 'green' : conversion(mathSall[1].target) >= 30 ? 'yellow' : 'red'" type="circle" :percent="conversion(mathSall[1].target)" />
+          <a-progress style="margin: 1rem"
+                      type="circle"
+                      :strokeColor="conversion(mathSall[1].target, 'obj').color"
+                      :percent="conversion(mathSall[1].target, 'obj').val"/>
         </a-col>
         <a-col :span="8">
-          <a-statistic :title="'Замерено / холостых'" :value="mathSall[1].target.length" :suffix="'/ ' + mathSall[1].blank.length"/>
-          <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(mathSall[1].target).length" :suffix="'/ '+getDesign(mathSall[1].target).length" />
-          <a-tooltip title="Догоняющие замеры">
-            <a-statistic v-if="mathSall[1].untarget.length" title="Подписано после 7-го" :value="mathSall[1].untarget.length"/>
+          <a-statistic
+              :title="'Замерено / холостых'"
+              :value="mathSall[1].target.estimate.length"
+              :suffix="'/ ' + mathSall[1].blank.estimate.length"/>
+          <a-tooltip title="Передано или подписано дизайнов">
+            <a-statistic
+                :title="'Передано / дизайнов'"
+                :value="getSuccess(mathSall[1].target.estimate).length"
+                :suffix="'/ '+ getDesign(mathSall[1].target.design, 'UF_CRM_1591089625').length" />
           </a-tooltip>
-
+          <a-tooltip title="Переданные / подписанные дизайны после 7-го">
+            <a-statistic
+                title="Догоняющие замеры / дизайны"
+                :value="mathSall[1].untarget.estimate.length"
+                :suffix="'/ '+mathSall[1].untarget.design.length"/>
+          </a-tooltip>
         </a-col>
 
         <a-col :span="8">
-          <a-statistic :precision="2" suffix="₽" title="Общая сумма замеров" :value="sumBy(mathSall[1].target, (i) => Number(i.UF_CRM_1569506341))" />
-          <a-statistic :precision="2" suffix="₽" title="Сумма взятых замеров" :value="sumBy(getSuccess(mathSall[1].target), (i) => Number(i.UF_CRM_1569506341))" />
-          <a-statistic :precision="2" suffix="₽" v-if="mathSall[1].untarget.length" title="Сумма взятых замеров после 7-го" :value="sumBy(mathSall[1].untarget, (i) => Number(i.UF_CRM_1569506341))"/>
+          <a-statistic
+              :precision="2"
+              suffix="₽"
+              title="Общая сумма замеров"
+              :value="sumBy(mathSall[1].target.estimate, (i) => Number(i.UF_CRM_1569506341))" />
+          <a-statistic
+              :precision="2"
+              suffix="₽"
+              title="Сумма взятых замеров"
+              :value="sumBy(getSuccess(mathSall[1].target.estimate), (i) => Number(i.UF_CRM_1569506341))" />
+          <a-statistic
+              :precision="2"
+              suffix="₽"
+              title="Сумма взятых замеров после 7-го"
+              :value="sumBy(mathSall[1].untarget.estimate, (i) => Number(i.UF_CRM_1569506341))"/>
         </a-col>
       </a-row>
       <div>
         <h4>Конверсия в деньгах</h4>
         <a-progress
-            :strokeColor="conversionCash(mathSall[1].target) < 30 ? 'red' : conversionCash(mathSall[1].target) < 40?  'yellow' : 'green'"
-            :percent="conversionCash(mathSall[1].target)"/>
+            :strokeColor="conversion(mathSall[1].target, 'cash', 2).color"
+            :percent="conversion(mathSall[1].target, 'cash', 2).val"/>
+      </div>
+      <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
+      <div>
+        <a-col v-for="(i2, k2) in summaryData(mathSall[1], true)" :key="k2" :span="i2.col.span">
+          <a-statistic :suffix="i2.statistic.suffix"
+                       :title="i2.statistic.title"
+                       :precision="i2.statistic.precision"
+                       :value="i2.statistic.value"/>
+        </a-col>
       </div>
 
-    </a-card>-->
+    </a-card>
 
     <masonry v-if="columns" :cols="{default: 2, 968: 1}">
 
@@ -58,84 +91,78 @@
       >
         <a-card
             style="margin: 0 .5rem 1rem .5rem;"
-            v-if="(i.target.length || i.untarget.length)  && i.name !== undefined"
+            v-if="(i.target.estimate.length || i.untarget.estimate.length)  && i.name !== undefined"
             hoverable
-            @click="$router.push({name:'conversionUser', params: {id:i.UF_CRM_1568623658, data:i, date: month, rate:getRate(conversion(i.target), conversionCash(i.target))}})"
+            @click="$router.push({
+                name:'conversionUser',
+                params: {
+                  id: i.UF_CRM_1568623658,
+                  data: i,
+                  date: month,
+                  rate: getRate(conversion(i.target, 'obj').val, conversion(i.target, 'cash').val)
+                }
+            })"
         >
-
           <a-row>
             <a-col :span="8">
               <h4>Конверсия {{i.name}}</h4>
-              <a-progress style="margin: 1rem" :strokeColor=" conversion(i.target) > 40 ? 'green' : conversion(i.target) >= 30 ? 'yellow' : 'red'" type="circle" :percent="conversion(i.target)" />
+              <a-progress style="margin: 1rem"
+                          type="circle"
+                          :strokeColor="conversion(i.target, 'obj').color"
+                          :percent="conversion(i.target, 'obj').val"/>
             </a-col>
             <a-col :span="8">
-              <a-statistic :title="'Замерено / холостых'" :value="i.target.length" :suffix="'/ ' + i.blank.length"/>
-              <a-statistic :title="'Передано / подписано дизайнов'" :value="getSuccess(i.target).length" :suffix="'/ '+getDesign(i.target).length" />
-              <a-tooltip title="Догоняющие замеры">
-                <a-statistic v-if="i.untarget.length" title="Подписано после 7-го" :value="i.untarget.length"/>
+              <a-statistic
+                  :title="'Замерено / холостых'"
+                  :value="i.target.estimate.length"
+                  :suffix="'/ ' + i.blank.estimate.length"/>
+              <a-tooltip title="Передано или подписано дизайнов">
+                <a-statistic
+                    :title="'Передано / дизайнов'"
+                    :value="getSuccess(i.target.estimate).length"
+                    :suffix="'/ '+ getDesign(i.target.design, 'UF_CRM_1591089625').length" />
+              </a-tooltip>
+              <a-tooltip title="Переданные / подписанные дизайны после 7-го">
+                <a-statistic
+                    title="Догоняющие замеры / дизайны"
+                    :value="i.untarget.estimate.length"
+                    :suffix="'/ '+i.untarget.design.length"/>
               </a-tooltip>
 
             </a-col>
-
             <a-col :span="8">
-              <a-statistic :precision="2" suffix="₽" title="Общая сумма замеров" :value="sumBy(i.target, (i) => Number(i.UF_CRM_1569506341))" />
-              <a-statistic :precision="2" suffix="₽" title="Сумма взятых замеров" :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341))" />
-              <a-statistic :precision="2" suffix="₽" v-if="i.untarget.length" title="Сумма взятых замеров после 7-го" :value="sumBy(i.untarget, (i) => Number(i.UF_CRM_1569506341))"/>
+              <a-statistic
+                  :precision="2"
+                  suffix="₽"
+                  title="Общая сумма замеров"
+                  :value="sumBy(i.target.estimate, (i) => Number(i.UF_CRM_1569506341))" />
+              <a-statistic
+                  :precision="2"
+                  suffix="₽"
+                  title="Сумма взятых замеров"
+                  :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341))" />
+              <a-statistic
+                  :precision="2"
+                  suffix="₽"
+                  title="Сумма взятых замеров после 7-го"
+                  :value="sumBy(i.untarget.estimate, (i) => Number(i.UF_CRM_1569506341))"/>
             </a-col>
           </a-row>
           <div>
             <h4>Конверсия в деньгах</h4>
             <a-progress
-                :strokeColor="conversionCash(i.target) < 30 ? 'red' : conversionCash(i.target) < 40?  'yellow' : 'green'"
-                :percent="conversionCash(i.target)"/>
+                :strokeColor="conversion(i.target, 'cash', 2).color"
+                :percent="conversion(i.target, 'cash', 2).val"/>
           </div>
-
-          <a-divider>Зарплата:</a-divider>
-          <a-col :span="8">
-            <a-statistic title="Ставка" :precision="2" suffix="%"
-                         :value="getRate(conversion(i.target), conversionCash(i.target))"/>
-          </a-col>
-          <a-tooltip :title="`${sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
-            <a-col :span="8">
-                <a-statistic suffix="₽"
-                             :title="`Зарплата текущего месяца`" :precision="2"
-                             :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
+          <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
+          <div>
+            <a-col v-for="(i2, k2) in summaryData(i, true)" :key="k2" :span="i2.col.span">
+              <a-statistic :suffix="i2.statistic.suffix"
+                           :title="i2.statistic.title"
+                           :precision="i2.statistic.precision"
+                           :value="i2.statistic.value"/>
             </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`${sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)).toFixed(2)} * ${getRate(conversion(i.target), conversionCash(i.target))}%`">
-            <a-col :span="8">
-              <a-statistic suffix="₽" v-if="i.untarget.length"
-                           :title="`Зарплата предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`Бонусы текущего месяца`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.target), (i) => Number(i.sale))"
-                           :title="`Бонусы текущего месяца`" :precision="2"
-                           :value="sumBy(getSuccess(i.target), (i) => Number(i.sale))"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`Бонусы с предыдущих месяцев`">
-            <a-col :span="8">
-              <a-statistic suffix="₽"  v-if="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
-                           :title="`Бонусы с предыдущих месяцев`" :precision="2"
-                           :value="sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
-            </a-col>
-          </a-tooltip>
-          <a-tooltip :title="`
-            Основной ${(sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
-          + с предыдущих ${(sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)).toFixed(2)}
-          + бонус тек. ${sumBy(getSuccess(i.target), (i) => Number(i.sale)).toFixed(2)}
-          + бонус пред. ${sumBy(getSuccess(i.untarget), (i) => Number(i.sale)).toFixed(2)}`">
-          <a-col :span="8">
-            <a-statistic suffix="₽" v-if="i.untarget.length || sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"
-                         :title="`Итого по зарплате`" :precision="2"
-                         :value="sumBy(getSuccess(i.target), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
-                          + sumBy(getSuccess(i.untarget), (i) => Number(i.UF_CRM_1569506341)) * (getRate(conversion(i.target), conversionCash(i.target))/100)
-                          + sumBy(getSuccess(i.target), (i) => Number(i.sale)) + sumBy(getSuccess(i.untarget), (i) => Number(i.sale))"/>
-          </a-col>
-          </a-tooltip>
+          </div>
         </a-card>
       </div>
 
@@ -364,10 +391,19 @@ export default {
     mathSall(){
       let a = {};
       let sum = {
-          target: [],
-          untarget: [],
-          blank: [],
-        }
+        target: {
+          design: [],
+          estimate: [],
+        },
+        untarget:{
+          design: [],
+          estimate: [],
+        },
+        blank: {
+          design: [],
+          estimate: [],
+        },
+      }
       if (!this.month) return
         forEach(this.listDeal, (data) => {
           let DateEstimate = moment(data.UF_CRM_1595577914)
@@ -406,22 +442,24 @@ export default {
           }
           if (DesignIf.selfEstimate) {
             a[data.UF_CRM_1568623658].target.design.push(data)
+            sum.target.design.push(data)
           }
           if (DesignIf.selfOnly) {
             a[data.UF_CRM_1568623658].untarget.design.push(data)
+            sum.untarget.design.push(data)
           }
           if (DateEstimate.isSame(this.month, 'month') && data.UF_CRM_1591100871 != 510) {
             a[data.UF_CRM_1568623658].target.estimate.push(data)
-            sum.target.push(data)
+            sum.target.estimate.push(data)
           }
           if (DateEstimate.isSame(this.month, 'month') && data.UF_CRM_1591100871 == 510) {
             a[data.UF_CRM_1568623658].blank.estimate.push(data)
-            sum.blank.push(data)
+            sum.blank.estimate.push(data)
           }
           if (DateEstimate.isBefore(this.month.clone(), 'month') &&
               moment(DateSuccess).isBetween(this.month.clone().startOf('month').add(7,'days'), this.month.clone().add(1,'months').startOf('month').add(7,'days'), undefined, '(]')){
             a[data.UF_CRM_1568623658].untarget.estimate.push(data)
-            sum.untarget.push(data)
+            sum.untarget.estimate.push(data)
           }
 
         })

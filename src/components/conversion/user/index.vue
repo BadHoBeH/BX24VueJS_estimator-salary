@@ -17,7 +17,7 @@
         <a-statistic slot="bSale" :value-style="bSale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
         <a-statistic slot="payEst" :value-style="`color: ${payEst.color}`" slot-scope="payEst" :precision="1" suffix="₽" :value="payEst.val"/>
         <a-statistic slot="paySum" slot-scope="paySum" :precision="1" suffix="₽" :value="paySum"/>
-        <a-statistic slot="bDesign" slot-scope="bDesign" :precision="1" suffix="₽" :value="bDesign.val"/>
+        <a-statistic slot="bDesign" :value-style="`color: ${bDesign.color}`" slot-scope="bDesign" :precision="1" suffix="₽" :value="bDesign.val"/>
       </a-table>
     </div>
 
@@ -98,11 +98,11 @@ export default {
             i.dataSource = module.estimate.map((i) => {
               i.title = { id: i.ID, title: i.TITLE}
               i.bDesign = (i.UF_CRM_1615979431 && module.design.find((i2) => i2.ID === i.ID))
-                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет'}
+                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён', color: 'green'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет', color: 'green'}
                   : { val: 0, text: 'Дизайн не найден / идёт в другой месяц'};
               i.payEst = {
                 val: i.UF_CRM_1569506341 * (this.$route.params.rate / 100),
-                color: i.UF_CRM_1591089625 ? 'green' : i.bDesign.val ? 'black' : 'red'}
+                color: i.UF_CRM_1591089625 ? 'green' : 'red'}
               i.paySum = Number ( Number (i.UF_CRM_1591089625 ? i.payEst.val : 0) +  Number(i.bDesign.val) + Number (i.sale));
               return i;
             })
@@ -113,7 +113,7 @@ export default {
             i.dataSource = module.design.map((i) => {
               i.title = { id: i.ID, title: i.TITLE}
               i.bDesign = (i.UF_CRM_1615979431 && module.design.find((i2) => i2.ID === i.ID))
-                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет'}
+                  ? { val: i.UF_CRM_1618824869, text: 'Дизайн учтён', color: 'green'} || { val: i.UF_CRM_1618824869, text: 'Дизайн учтён, бонуса нет', color: 'green'}
                   : { val: 0, text: 'Дизайн не найден / идёт в другой месяц'};
               return i;
             })
