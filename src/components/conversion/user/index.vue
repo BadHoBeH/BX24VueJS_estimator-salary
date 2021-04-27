@@ -11,13 +11,13 @@
         <a target="_blank" :href="'https://crm.sknebo.ru/crm/deal/details/'+title.id+'/'" slot="title" slot-scope="title"> {{title.title}} </a>
         <span slot="dateZamer" slot-scope="dateZamer">{{moment(dateZamer).format('DD MMMM YYYY')}}</span>
         <span slot="dateSuccess" slot-scope="dateSuccess">{{ dateSuccess ? moment(dateSuccess).format('DD MMMM YYYY') : 'Ещё не успешен' }}</span>
-        <span slot="dateSuccess" slot-scope="dateDesign">{{ dateDesign ? moment(dateDesign).format('DD MMMM YYYY') : 'Ещё не подписан' }}</span>
+        <span slot="dateDesign" slot-scope="dateDesign">{{ dateDesign ? moment(dateDesign).format('DD MMMM YYYY') : 'Ещё не подписан' }}</span>
         <a-statistic slot="sum" slot-scope="sum" :precision="2" suffix="₽" :value="sum"/>
         <a-statistic slot="saleproc" slot-scope="saleproc" :precision="2" suffix="%" :value="saleproc"/>
         <a-statistic slot="bSale" :value-style="bSale > 0 ? {color: 'green'} : null" slot-scope="sale" :precision="1" suffix="₽" :value="sale"/>
         <a-statistic slot="payEst" :value-style="`color: ${payEst.color}`" slot-scope="payEst" :precision="1" suffix="₽" :value="payEst.val"/>
         <a-statistic slot="paySum" slot-scope="paySum" :precision="1" suffix="₽" :value="paySum"/>
-        <a-statistic slot="bDesign" :value-style="`color: ${bDesign.color}`" slot-scope="bDesign" :precision="1" suffix="₽" :value="bDesign.val"/>
+        <a-statistic slot="bDesign" :value-style="`color: ${bDesign.color}`" slot-scope="bDesign" :precision="1" suffix="₽" :value="bDesign.val || 0"></a-statistic>
       </a-table>
     </div>
 
