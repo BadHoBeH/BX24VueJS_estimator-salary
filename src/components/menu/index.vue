@@ -16,7 +16,9 @@ export default {
           title: 'Конверсия',
           path: '',
           name: 'conversion',
-        },{
+        }
+        // легаси, так и не стало использоваться
+        /*,{
           key: '3',
           title: 'ГСМ',
           path: 'gsm',
@@ -26,7 +28,7 @@ export default {
           title: 'Маршруты',
           path: 'route',
           name: 'route',
-        },
+        },*/
       ],
     }
   },

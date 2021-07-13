@@ -3,10 +3,10 @@ import VueRouter from 'vue-router'
 /*Page active*/
 
 
-import route from "../components/route/index";
-import routepay from "../components/route-pay/index";
+//import route from "../components/route/index";
+//import routepay from "../components/route-pay/index";
 import conversion from "../components/conversion/index";
-import slozno from "../components/conversion/help";
+//import slozno from "../components/conversion/help";
 import conversionUser from "../components/conversion/user/index";
 
 
@@ -19,7 +19,7 @@ const routes = [
         path: '/',
         name: 'conversion',
         component: conversion
-    },{
+    },/*{
         path: '/route',
         name: 'route',
         component: route
@@ -31,7 +31,7 @@ const routes = [
         path: '/gsm',
         name: 'routepay',
         component: routepay
-    },{
+    },*/{
         path: '/conversion/:id',
         name: 'conversionUser',
         component: conversionUser

@@ -3,8 +3,8 @@
     <div style="margin: .5rem">
       <a-month-picker v-model="month" @change="getDeal" placeholder="Выбрать месяц" style="margin: 0 .25rem 0 .25rem"/>
       <a-button type="primary" :disabled="!month" @click="getDeal(month)" style="margin: 0 .25rem 0 .25rem">найти</a-button>
-      <a-button :disabled="true" type="dashed" style="float: right" @click="$router.push({name:'slozno'})">не понимаю</a-button>
-      <a-switch v-model="columns" @click="setColumns"/>
+<!--      <a-button :disabled="true" type="dashed" style="float: right" @click="$router.push({name:'slozno'})">не понимаю</a-button>-->
+<!--      <a-switch v-model="columns" @click="setColumns"/>-->
     </div>
 
     <a-result v-if="!size(listDeal) || !month" status="404" title="Не выбран месяц" sub-title="Пожалуйста, выберете месяц отчётности">
@@ -37,7 +37,7 @@
             <a-statistic
                 :title="'Передано / дизайнов'"
                 :value="getSuccess(mathSall[1].target.estimate).length"
-                :suffix="'/ '+ getDesign(mathSall[1].target.design, 'UF_CRM_1591089625').length" />
+                :suffix="'/ '+ getDesign(mathSall[1].target.design, mathSall[1].target.estimate).length" />
           </a-tooltip>
           <a-tooltip title="Переданные / подписанные дизайны после 7-го">
             <a-statistic
@@ -83,173 +83,90 @@
 
     </a-card>
 
-    <masonry v-if="columns" :cols="{default: 2, 968: 1}">
-
-      <div
-          v-for="i in mathSall[0]"
-          :key="i.id"
+    <div
+        v-for="i in mathSall[0]"
+        :key="i.id"
+    >
+      <a-card
+          style="margin: 0 .5rem 1rem .5rem;"
+          v-if="(i.target.estimate.length || i.untarget.estimate.length)  && i.name !== undefined"
+          hoverable
+          @click="$router.push({
+              name:'conversionUser',
+              params: {
+                id: i.UF_CRM_1568623658,
+                data: i,
+                date: month,
+                rate: getRate(conversion(i.target, 'obj').val, conversion(i.target, 'cash').val)
+              }
+          })"
       >
-        <a-card
-            style="margin: 0 .5rem 1rem .5rem;"
-            v-if="(i.target.estimate.length || i.untarget.estimate.length)  && i.name !== undefined"
-            hoverable
-            @click="$router.push({
-                name:'conversionUser',
-                params: {
-                  id: i.UF_CRM_1568623658,
-                  data: i,
-                  date: month,
-                  rate: getRate(conversion(i.target, 'obj').val, conversion(i.target, 'cash').val)
-                }
-            })"
-        >
-          <a-row>
-            <a-col :span="8">
-              <h4>Конверсия {{i.name}}</h4>
-              <a-progress style="margin: 1rem"
-                          type="circle"
-                          :strokeColor="conversion(i.target, 'obj').color"
-                          :percent="conversion(i.target, 'obj').val"/>
-            </a-col>
-            <a-col :span="8">
-              <a-statistic
-                  :title="'Замерено / холостых'"
-                  :value="i.target.estimate.length"
-                  :suffix="'/ ' + i.blank.estimate.length"/>
-              <a-tooltip title="Передано или подписано дизайнов">
-                <a-statistic
-                    :title="'Передано / дизайнов'"
-                    :value="getSuccess(i.target.estimate).length"
-                    :suffix="'/ '+ getDesign(i.target.design, 'UF_CRM_1591089625').length" />
-              </a-tooltip>
-              <a-tooltip title="Переданные / подписанные дизайны после 7-го">
-                <a-statistic
-                    title="Догоняющие замеры / дизайны"
-                    :value="i.untarget.estimate.length"
-                    :suffix="'/ '+i.untarget.design.length"/>
-              </a-tooltip>
+        <a-row>
+          <a-col :span="8">
+            <h4>Конверсия {{i.name}}</h4>
+            <a-progress style="margin: 1rem"
+                        type="circle"
+                        :strokeColor="conversion(i.target, 'obj').color"
+                        :percent="conversion(i.target, 'obj').val"/>
+          </a-col>
 
-            </a-col>
-            <a-col :span="8">
+          <!--Количественные карточки-->
+          <a-col :span="8">
+            <a-statistic
+                :title="'Замерено / холостых'"
+                :value="i.target.estimate.length"
+                :suffix="'/ ' + i.blank.estimate.length"/>
+            <a-tooltip title="Передано или подписано дизайнов">
               <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Общая сумма замеров"
-                  :value="sumBy(i.target.estimate, (i) => Number(i.UF_CRM_1569506341))" />
+                  :title="'Передано / дизайнов'"
+                  :value="getSuccess(i.target.estimate).length"
+                  :suffix="'/ '+ getDesign(i.target.design, i.target.estimate).length" />
+            </a-tooltip>
+            <a-tooltip title="Переданные / подписанные дизайны после 7-го">
               <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Сумма взятых замеров"
-                  :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341))" />
-              <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Сумма взятых замеров после 7-го"
-                  :value="sumBy(i.untarget.estimate, (i) => Number(i.UF_CRM_1569506341))"/>
-            </a-col>
-          </a-row>
-          <div>
-            <h4>Конверсия в деньгах</h4>
-            <a-progress
-                :strokeColor="conversion(i.target, 'cash', 2).color"
-                :percent="conversion(i.target, 'cash', 2).val"/>
-          </div>
-          <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
-          <div>
-            <a-col v-for="(i2, k2) in summaryData(i, true)" :key="k2" :span="i2.col.span">
-              <a-statistic :suffix="i2.statistic.suffix"
-                           :title="i2.statistic.title"
-                           :precision="i2.statistic.precision"
-                           :value="i2.statistic.value"/>
-            </a-col>
-          </div>
-        </a-card>
-      </div>
+                  title="Догоняющие замеры / дизайны"
+                  :value="i.untarget.estimate.length"
+                  :suffix="'/ '+i.untarget.design.length"/>
+            </a-tooltip>
+          </a-col>
 
-    </masonry>
+          <!-- Небольшие кол-во карточки в деньгах -->
+          <a-col :span="8">
+            <a-statistic
+                :precision="2"
+                suffix="₽"
+                title="Общая сумма замеров"
+                :value="sumBy(i.target.estimate, (i) => Number(i.UF_CRM_1569506341))" />
+            <a-statistic
+                :precision="2"
+                suffix="₽"
+                title="Сумма взятых замеров"
+                :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341))" />
+            <a-statistic
+                :precision="2"
+                suffix="₽"
+                title="Сумма взятых замеров после 7-го"
+                :value="sumBy(i.untarget.estimate, (i) => Number(i.UF_CRM_1569506341))"/>
+          </a-col>
+        </a-row>
 
-
-    <div v-if="!columns">
-      <div
-          v-for="i in mathSall[0]"
-          :key="i.id"
-      >
-        <a-card
-            style="margin: 0 .5rem 1rem .5rem;"
-            v-if="(i.target.estimate.length || i.untarget.estimate.length)  && i.name !== undefined"
-            hoverable
-            @click="$router.push({
-                name:'conversionUser',
-                params: {
-                  id: i.UF_CRM_1568623658,
-                  data: i,
-                  date: month,
-                  rate: getRate(conversion(i.target, 'obj').val, conversion(i.target, 'cash').val)
-                }
-            })"
-        >
-          <a-row>
-            <a-col :span="8">
-              <h4>Конверсия {{i.name}}</h4>
-              <a-progress style="margin: 1rem"
-                          type="circle"
-                          :strokeColor="conversion(i.target, 'obj').color"
-                          :percent="conversion(i.target, 'obj').val"/>
-            </a-col>
-            <a-col :span="8">
-              <a-statistic
-                  :title="'Замерено / холостых'"
-                  :value="i.target.estimate.length"
-                  :suffix="'/ ' + i.blank.estimate.length"/>
-              <a-tooltip title="Передано или подписано дизайнов">
-                <a-statistic
-                    :title="'Передано / дизайнов'"
-                    :value="getSuccess(i.target.estimate).length"
-                    :suffix="'/ '+ getDesign(i.target.design, 'UF_CRM_1591089625').length" />
-              </a-tooltip>
-              <a-tooltip title="Переданные / подписанные дизайны после 7-го">
-                <a-statistic
-                    title="Догоняющие замеры / дизайны"
-                    :value="i.untarget.estimate.length"
-                    :suffix="'/ '+i.untarget.design.length"/>
-              </a-tooltip>
-
-            </a-col>
-            <a-col :span="8">
-              <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Общая сумма замеров"
-                  :value="sumBy(i.target.estimate, (i) => Number(i.UF_CRM_1569506341))" />
-              <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Сумма взятых замеров"
-                  :value="sumBy(getSuccess(i.target.estimate), (i) => Number(i.UF_CRM_1569506341))" />
-              <a-statistic
-                  :precision="2"
-                  suffix="₽"
-                  title="Сумма взятых замеров после 7-го"
-                  :value="sumBy(i.untarget.estimate, (i) => Number(i.UF_CRM_1569506341))"/>
-            </a-col>
-          </a-row>
-          <div>
-            <h4>Конверсия в деньгах</h4>
-            <a-progress
-                :strokeColor="conversion(i.target, 'cash', 2).color"
-                :percent="conversion(i.target, 'cash', 2).val"/>
-          </div>
-          <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
-          <div>
-            <a-col v-for="(i2, k2) in summaryData(i, true)" :key="k2" :span="i2.col.span">
-              <a-statistic :suffix="i2.statistic.suffix"
-                           :title="i2.statistic.title"
-                           :precision="i2.statistic.precision"
-                           :value="i2.statistic.value"/>
-            </a-col>
-          </div>
-        </a-card>
-      </div>
+        <!--Футор карточки с зп-->
+        <div>
+          <h4>Конверсия в деньгах</h4>
+          <a-progress
+              :strokeColor="conversion(i.target, 'cash', 2).color"
+              :percent="conversion(i.target, 'cash', 2).val"/>
+        </div>
+        <a-divider>Зарплата (нажми, увидишь больше)</a-divider>
+        <div>
+          <a-col v-for="(i2, k2) in summaryData(i, true)" :key="k2" :span="i2.col.span">
+            <a-statistic :suffix="i2.statistic.suffix"
+                         :title="i2.statistic.title"
+                         :precision="i2.statistic.precision"
+                         :value="i2.statistic.value"/>
+          </a-col>
+        </div>
+      </a-card>
     </div>
 
 
@@ -410,8 +327,10 @@ export default {
           let DateSuccess = moment(data.UF_CRM_1591089625)
           let DateDesign = moment(data.UF_CRM_1615979431);
           let DesignIf = {
+            // Дата замера текущий месяц и дизайн в текущем месяце
             selfEstimate: DateEstimate.isSame(this.month, 'month')
-                && DateDesign.isBetween(this.month.clone().startOf('month'), this.month.clone().endOf('month').add(7,'days'), undefined, '(]'),
+                && DateDesign.isBetween(this.month.clone().startOf('month'), this.month.clone().endOf('month').add(7,'days'), 'day', '(]'),
+            // Дата замера раньше текущего месяца и Дата дизайна после 7го текущего и до 7-го следующего месяца
             selfOnly: DateEstimate.isBefore(this.month, 'month') &&
               moment(DateDesign).isBetween(this.month.clone().startOf('month').add(7,'days'), this.month.clone().add(1,'months').startOf('month').add(7,'days'), undefined, '(]'),
           }
@@ -440,14 +359,17 @@ export default {
                   : data.UF_CRM_1568623658
             }
           }
+          // Добавляем к таргет дизайну
           if (DesignIf.selfEstimate) {
             a[data.UF_CRM_1568623658].target.design.push(data)
             sum.target.design.push(data)
           }
+          // Добавляем нецелевой? дизайн
           if (DesignIf.selfOnly) {
             a[data.UF_CRM_1568623658].untarget.design.push(data)
             sum.untarget.design.push(data)
           }
+          // Добавляем текущие замеры
           if (DateEstimate.isSame(this.month, 'month') && data.UF_CRM_1591100871 != 510) {
             a[data.UF_CRM_1568623658].target.estimate.push(data)
             sum.target.estimate.push(data)
@@ -481,6 +403,7 @@ export default {
           estimate: this.getSuccess(data.untarget.estimate),
         }
       };
+      // console.log(data, nnull, success)
       let a = mapValues(this.fieldSummary, (i, k) => {
         switch (k) {
           case 'rate': {
@@ -525,7 +448,7 @@ export default {
     conversion(data, type = 'obj' || 'cash' || 'all', roundValue = 2) {
       let c = mapValues({
         cash: (type === 'cash' || type === 'all') ? round(((sumBy(this.getSuccess(data.estimate), (i) => Number(i.UF_CRM_1569506341)))*100/sumBy(data.estimate, (i) => Number(i.UF_CRM_1569506341))),2) || 0 : null,
-        obj: (type === 'obj' || type === 'all') ? round(((this.getSuccess(data.estimate).length + this.getDesign(data.design, 'UF_CRM_1591089625').length ) / data.estimate.length) * 100, roundValue) || 0 : null,
+        obj: (type === 'obj' || type === 'all') ? round(((this.getSuccess(data.estimate).length + this.getDesign(data.design, data.estimate).length ) / data.estimate.length) * 100, roundValue) || 0 : null,
       }, (i) => ({
           color: this.getColor(i),
           val: i
@@ -546,9 +469,14 @@ export default {
             && moment(i.UF_CRM_1591089625).isSameOrBefore(this.otch)})
     },
 
-
-    getDesign(data, filedNull){
-      return data.filter((i) => !i[filedNull]) || null
+      /**
+       * Вычленяем только уникальные дизайны
+       */
+    getDesign(design, estim){
+      let d2 = design.map((i) => i.ID)
+      let e2 = this.getSuccess(estim).map((i) => i.ID)
+      // console.log(design, estim)
+      return d2.filter((i) => !e2.includes(i)) || null
     },
 
     getBlank(data){
