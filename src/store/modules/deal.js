@@ -54,6 +54,10 @@ export const actions = {
     *       }
     */
     async getAll({state,commit}, query){
+        if (query.clear) {
+            commit('SET_ALL_DATA', {})
+            return false
+        }
         console.log('getDeal data: ',query)
         if (!query) return false;
         commit('SET_ALL_LOADING', state.all.loading+1);

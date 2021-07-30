@@ -15,7 +15,7 @@
     </a-result>
 
     <a-card
-        v-if="month && size(listDeal) && ['4','8','*'].includes(user)"
+        v-if="month && size(listDeal) && (['4','8','*'].includes(user) || dataFilter)"
         style="margin: 0 .5rem 1rem .5rem; border-left: 6px solid #1890ff!important;"
         hoverable
         @click="$router.push({name:'conversionUser', params: {data:mathSall[1], rate:getRate(conversion(mathSall[1].target), conversionCash(mathSall[1].target))}})"
@@ -193,6 +193,7 @@ export default {
       columns : !localStorage.getItem('columns') ? true : localStorage.getItem('columns') === 'true',
       month: new Date().getDate() > 16 ? moment() : moment().subtract(1, 'months'),
       user:'',
+      currentUser: null,
       fieldSummary: {
         rate: {
           sum: false,
@@ -510,19 +511,35 @@ export default {
       return stavka
     },
 
-    async getFullData(){
+    nsdo(id) {
+      if (id == 337) return Object.values(this.listUser).filter((i) => i.UF_DEPARTMENT.includes(112)).map((i) => i.ID);
+      if (id == 159) return Object.values(this.listUser).filter((i) => i.UF_DEPARTMENT.includes(111)).map((i) => i.ID);
+      else return []
+    },
 
-      if (process.env.NODE_ENV === 'development') this.user = '*'
-      const adm = ["4","8","159"]
+    async getFullData(){
+      if (process.env.NODE_ENV === 'development') {
+        this.user = '*'
+        return true
+      }
+      const adm = ["4","8"]
       const BX24 = await Bitrix24.init()
       if (!BX24) return
-      await BX24.init(() => {
-        BX24.callMethod('user.current', {}, (result) =>
+      BX24.init(() => {
+         BX24.callMethod('user.current', {},  (result) =>
             {
-              this.user = (adm.includes(result.data().ID))?'*':result.data().ID
+              this.currentUser = result.data().ID
             }
         )})
+    },
 
+    dataFilter() {
+      if (process.env.NODE_ENV === 'development' || [4, 8].includes(this.currentUser)) return [];
+      return this.$route.params.nsdo !== undefined
+          ? this.nsdo(this.$route.params.nsdo)
+          : this.nsdo(this.currentUser)
+              ? this.nsdo(this.currentUser)
+              : this.currentUser
     },
 
     ...mapActions({
@@ -530,22 +547,26 @@ export default {
     }),
 
     async getDeal(date) {
+      await this.getDealData({clear: true})
+
+      const filter = this.dataFilter();
+      console.log(filter)
       let select = ['ID','TITLE', 'UF_CRM_1618824869', 'UF_CRM_1582722192816','UF_CRM_1568623658','UF_CRM_1572957177','UF_CRM_1569506341','UF_CRM_1595577914','UF_CRM_1591089625','UF_CRM_1572957239','UF_CRM_1591100871', 'UF_CRM_1615979431']
       /*  [Замеры, Дизайны, Передачи]   */
       await [{
         '>=UF_CRM_1595577914':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
         '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
-        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+        '=UF_CRM_1568623658': filter, // (this.user === '*')?[]:this.user,
       }, {
         '>UF_CRM_1569506341': 0,
         '>=UF_CRM_1615979431':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
         '<=UF_CRM_1615979431':moment(date).endOf('month').add('day', 7).format('DD.MM.YYYY HH:mm:ss'),
-        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+        '=UF_CRM_1568623658': filter, // (this.user === '*')?[]:this.user,
       }, {
         'UF_CRM_1572957239': "1",
         '>=UF_CRM_1591089625':moment(date).startOf('month').format('DD.MM.YYYY HH:mm:ss'),
         '<=UF_CRM_1591089625':moment(date).endOf('month').add('days', 7).format('DD.MM.YYYY HH:mm:ss'),
-        '=UF_CRM_1568623658':(this.user === '*')?[]:this.user,
+        '=UF_CRM_1568623658': filter, // (this.user === '*')?[]:this.user,
         '<=UF_CRM_1595577914':moment(date).endOf('month').format('DD.MM.YYYY HH:mm:ss'),
       }]
           .map((filter) => {

@@ -19,19 +19,17 @@ const routes = [
         path: '/',
         name: 'conversion',
         component: conversion
-    },/*{
-        path: '/route',
-        name: 'route',
-        component: route
     },{
-        path: '/slozno',
-        name: 'slozno',
-        component: slozno
+        path: '/111',
+        name: 'conversion111',
+        component: conversion,
+        params: {nsdo: 159}
     },{
-        path: '/gsm',
-        name: 'routepay',
-        component: routepay
-    },*/{
+        path: '/112',
+        name: 'conversion112',
+        component: conversion,
+        params: {nsdo: 337}
+    },{
         path: '/conversion/:id',
         name: 'conversionUser',
         component: conversionUser
